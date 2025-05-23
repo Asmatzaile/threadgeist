@@ -1,5 +1,6 @@
 
 import { stipple } from "./stipple";
+import { calculateRoute } from "./thread"
 
 const image = new Image();
 image.crossOrigin = "anonymous";
@@ -12,11 +13,14 @@ const context = canvas.getContext("2d");
 document.body.appendChild(canvas);
 
 
-const pointCount = 20000;
+const pointCount = 1000;
 image.onload = () => {
     const parsedImage = parseImage(image);
     const points = stipple(parsedImage, pointCount);
     drawPoints(points);
+    const imgDiagonal = Math.sqrt(Math.pow(image.width, 2) + Math.pow(image.height, 2));
+    const route = calculateRoute(points, imgDiagonal);
+    drawRoute(points, route);
 }
 
 function parseImage(image) {
@@ -49,4 +53,15 @@ function drawPoints(points) {
     }
     context.fillStyle = "#000";
     context.fill();
+}
+
+function drawRoute(points, route) {
+    context.beginPath();
+    route.forEach((pointIndex, i) => {
+        const [x, y] = [points[pointIndex*2], points[pointIndex*2+1]];
+        if (i === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+    })
+    context.strokeStyle = "#f00"
+    context.stroke();
 }
