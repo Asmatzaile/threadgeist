@@ -1,0 +1,50 @@
+
+import { stipple } from "./stipple";
+
+const image = new Image();
+image.crossOrigin = "anonymous";
+image.src = "https://static.observableusercontent.com/files/14959f050311f400368624031a7b9e4285f35c65ca4022f618f9250d7163ef4b0a0582de20f7d9790ed76b3442b4a77ebb96b86f641c1d8466f6544325144aed?response-content-disposition=attachment%3Bfilename*%3DUTF-8%27%27obama.png";
+
+const canvas = document.createElement("canvas");
+canvas.width = image.width;
+canvas.height = image.height;
+const context = canvas.getContext("2d");
+document.body.appendChild(canvas);
+
+
+const pointCount = 20000;
+image.onload = () => {
+    const parsedImage = parseImage(image);
+    const points = stipple(parsedImage, pointCount);
+    drawPoints(points);
+}
+
+function parseImage(image) {
+    const canvas = document.createElement("canvas");
+    const { width, height } = image;
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+
+    context.drawImage(image, 0, 0);
+    const { data: rgba } = context.getImageData(0, 0, width, height);
+    const data = new Float64Array(width * height);
+    for (let i = 0, n = rgba.length / 4; i < n; ++i) {
+        data[i] =  Math.max(0, 1 - rgba[i * 4] / 254);
+    }
+
+    return { data, width, height };
+}
+
+function drawPoints(points) {
+    context.fillStyle = "#fff";
+    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+    context.beginPath();
+    for (let i = 0, n = points.length; i < n; i += 2) {
+        const x = points[i], y = points[i + 1];
+        context.moveTo(x + 1.5, y);
+        context.arc(x, y, 1.5, 0, 2 * Math.PI);
+    }
+    context.fillStyle = "#000";
+    context.fill();
+}
