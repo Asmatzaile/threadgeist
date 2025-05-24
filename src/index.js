@@ -1,25 +1,28 @@
 import { Stippler } from "./stippler";
 import { Threader } from "./threader";
 
-const image = new Image();
-image.crossOrigin = "anonymous";
-image.src = "https://static.observableusercontent.com/files/14959f050311f400368624031a7b9e4285f35c65ca4022f618f9250d7163ef4b0a0582de20f7d9790ed76b3442b4a77ebb96b86f641c1d8466f6544325144aed?response-content-disposition=attachment%3Bfilename*%3DUTF-8%27%27obama.png";
+export function loadImage(url, canvas) {
+    const image = new Image();
+    image.crossOrigin = "anonymous";
+    image.src = url;
+    image.onload = () => createLine(image, canvas);
+}
 
-const canvas = document.createElement("canvas");
-canvas.width = image.width;
-canvas.height = image.height;
-const context = canvas.getContext("2d");
-document.body.appendChild(canvas);
-
+export function getCanvas() {
+    return canvas;
+}
 
 const pointCount = 10000;
 
-image.onload = () => {
+const createLine = (image, canvas) => {
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const context = canvas.getContext("2d")
     const parsedImage = parseImage(image);
     const stippler = new Stippler(parsedImage, pointCount);
     const threader = new Threader(stippler);
     stippler.onstep = () => {
-        drawPoints(stippler.points);
+        drawPoints(stippler.points, context);
     }
     stippler.onfinish = () => {
         const points = stippler.points;
@@ -27,7 +30,7 @@ image.onload = () => {
         threader.createRoute(points, imgDiagonal);
     }
     threader.onstep = () => {
-        drawRoute(stippler.points, threader.route);
+        drawRoute(stippler.points, threader.route, context);
     }
     threader.onfinish = () => {
         console.log("finished!")
@@ -41,7 +44,6 @@ function parseImage(image) {
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext("2d");
-
     context.drawImage(image, 0, 0);
     const { data: rgba } = context.getImageData(0, 0, width, height);
     const data = new Float64Array(width * height);
@@ -54,7 +56,7 @@ function parseImage(image) {
     return { data, width, height };
 }
 
-function drawPoints(points) {
+function drawPoints(points, context) {
     context.fillStyle = "#fff";
     context.fillRect(0, 0, context.canvas.width, context.canvas.height);
     context.beginPath();
@@ -67,7 +69,7 @@ function drawPoints(points) {
     context.fill();
 }
 
-function drawRoute(points, route) {
+function drawRoute(points, route, context) {
     context.beginPath();
     route.forEach((pointIndex, i) => {
         const [x, y] = [points[pointIndex * 2], points[pointIndex * 2 + 1]];
