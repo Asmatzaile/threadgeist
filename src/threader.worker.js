@@ -1,26 +1,21 @@
-const distanceLimit = 0.07;
-const distanceWeight = 0.6;
-const directnessWeight = 3;
-
 const freePoints = new Map();
 
 // this only has point indexes
 const route = [];
 
 self.onmessage = event => {
-    const {data: { points, imgDiagonal }} = event;
-    const route = calculateRoute(points, imgDiagonal);
+    const {data: { points, settings }} = event;
+    const route = calculateRoute(points, settings);
     self.postMessage({finished: true, route})
 }
 
 
 // points is a 1d array with [x0, y0, x1, y1, ...]
-function calculateRoute(points, imgDiagonal) {
+function calculateRoute(points, settings) {
     const pointCount = points.length / 2;
     for (let i = 0; i < pointCount; i++) {
         freePoints.set(i, [points[i*2], points[i*2+1]]);
     }
-    const maxDistance = imgDiagonal * distanceLimit;
     
     let currentIndex = Math.floor(Math.random() * pointCount);
     let angle = Math.random() * Math.PI * 2;
@@ -30,7 +25,7 @@ function calculateRoute(points, imgDiagonal) {
         const [currentX, currentY] = freePoints.get(currentIndex);
         freePoints.delete(currentIndex);
 
-        currentIndex = getNextIndex(currentX, currentY, angle, {maxDistance, distanceWeight, directnessWeight});
+        currentIndex = getNextIndex(currentX, currentY, angle, settings);
         if (currentIndex === undefined) return route;
         angle = freePoints.get(currentIndex);
     }

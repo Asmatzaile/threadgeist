@@ -12,15 +12,21 @@ export function getCanvas() {
     return canvas;
 }
 
-const pointCount = 10000;
+const stippler = new Stippler();
+const threader = new Threader();
+export function getStippler() {
+    return stippler;
+}
+export function getThreader() {
+    return threader;
+}
 
 const createLine = (image, canvas) => {
     canvas.width = image.width;
     canvas.height = image.height;
     const context = canvas.getContext("2d")
     const parsedImage = parseImage(image);
-    const stippler = new Stippler(parsedImage, pointCount);
-    const threader = new Threader(stippler);
+    stippler.init(parsedImage);
     stippler.onstep = () => {
         drawPoints(stippler.points, context);
     }

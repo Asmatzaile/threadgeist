@@ -13,6 +13,7 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import { Delaunay } from "d3-delaunay";
+import { lerp } from "./utils";
 
 self.onmessage = event => {
     const {data: { points, image, steps }} = event;
@@ -61,8 +62,8 @@ function relaxStep(voronoi, c, s, image, wiggle=0) {
         // Relax the diagram by moving points to the weighted centroid.
         const x0 = points[i * 2], y0 = points[i * 2 + 1];
         const x1 = s[i] ? c[i * 2] / s[i] : x0, y1 = s[i] ? c[i * 2 + 1] / s[i] : y0;
-        points[i * 2] = x0 + (x1 - x0) * 1.8;
-        points[i * 2 + 1] = y0 + (y1 - y0) * 1.8;
+        points[i * 2] = lerp(1.8, x0, x1);
+        points[i * 2 + 1] = lerp(1.8, y0, y1);
 
         // Wiggle the points a little bit so they don't get stuck
         points[i * 2] += (Math.random() - 0.5) * wiggle * width;
