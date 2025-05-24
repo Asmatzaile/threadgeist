@@ -1,7 +1,3 @@
-
-import { stipple } from "./stipple";
-import { calculateRoute } from "./thread"
-
 const image = new Image();
 image.crossOrigin = "anonymous";
 image.src = "https://static.observableusercontent.com/files/14959f050311f400368624031a7b9e4285f35c65ca4022f618f9250d7163ef4b0a0582de20f7d9790ed76b3442b4a77ebb96b86f641c1d8466f6544325144aed?response-content-disposition=attachment%3Bfilename*%3DUTF-8%27%27obama.png";
@@ -13,14 +9,29 @@ const context = canvas.getContext("2d");
 document.body.appendChild(canvas);
 
 
-const pointCount = 1000;
+const pointCount = 10000;
+const stippler = new Worker(new URL("./stipple.js", import.meta.url), {type: 'module'});
+const threader = new Worker(new URL("./thread.js", import.meta.url), {type: 'module'});
+
+let ppoints;
+stippler.addEventListener("message", ({data}) => {
+    const { points, finished } = data;
+    drawPoints(points);
+    if (!finished) return;
+    const imgDiagonal = Math.sqrt(Math.pow(image.width, 2) + Math.pow(image.height, 2));
+    ppoints = points;
+    threader.postMessage({ points, imgDiagonal })
+});
+
+threader.addEventListener("message", ({data}) => {
+    const { route, finished } = data;
+    drawRoute(ppoints, route);
+    if (finished) console.log("finished!");
+});
+
 image.onload = () => {
     const parsedImage = parseImage(image);
-    const points = stipple(parsedImage, pointCount);
-    drawPoints(points);
-    const imgDiagonal = Math.sqrt(Math.pow(image.width, 2) + Math.pow(image.height, 2));
-    const route = calculateRoute(points, imgDiagonal);
-    drawRoute(points, route);
+    stippler.postMessage({image: parsedImage, pointCount});
 }
 
 function parseImage(image) {

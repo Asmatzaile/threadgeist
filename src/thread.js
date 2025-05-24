@@ -7,8 +7,15 @@ const freePoints = new Map();
 // this only has point indexes
 const route = [];
 
+self.onmessage = event => {
+    const {data: { points, imgDiagonal }} = event;
+    const route = calculateRoute(points, imgDiagonal);
+    self.postMessage({finished: true, route})
+}
+
+
 // points is a 1d array with [x0, y0, x1, y1, ...]
-export function calculateRoute(points, imgDiagonal) {
+function calculateRoute(points, imgDiagonal) {
     const pointCount = points.length / 2;
     for (let i = 0; i < pointCount; i++) {
         freePoints.set(i, [points[i*2], points[i*2+1]]);
@@ -19,6 +26,7 @@ export function calculateRoute(points, imgDiagonal) {
     let angle = Math.random() * Math.PI * 2;
     for (let i = 0; i < pointCount; i++) {
         route.push(currentIndex);
+        self.postMessage({route})
         const [currentX, currentY] = freePoints.get(currentIndex);
         freePoints.delete(currentIndex);
 
