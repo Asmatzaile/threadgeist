@@ -29,7 +29,7 @@ function relax(points, image, steps) {
     const s = new Float64Array(n);
 
     for (let k = 0; k < steps; ++k) {
-        const wiggle = Math.pow(k + 1, -0.8) * 10;
+        const wiggle = Math.pow(k + 1, -0.8) / 100;
         points = relaxStep(voronoi, c, s, image, wiggle);
         self.postMessage({points});
     }
@@ -65,8 +65,8 @@ function relaxStep(voronoi, c, s, image, wiggle=0) {
         points[i * 2 + 1] = y0 + (y1 - y0) * 1.8;
 
         // Wiggle the points a little bit so they don't get stuck
-        points[i * 2] += (Math.random() - 0.5) * wiggle;
-        points[i * 2 + 1] += (Math.random() - 0.5) * wiggle;
+        points[i * 2] += (Math.random() - 0.5) * wiggle * width;
+        points[i * 2 + 1] += (Math.random() - 0.5) * wiggle * height;
     }
     voronoi.update();
 
