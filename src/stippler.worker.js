@@ -15,33 +15,12 @@
 import { Delaunay } from "d3-delaunay";
 
 self.onmessage = event => {
-    const {data: { image, pointCount }} = event;
-    const points = stipple(image, pointCount);
-    self.postMessage({finished: true, points})
+    const {data: { points, image, steps }} = event;
+    const newPoints = relax(points, image, steps);
+    self.postMessage({finished: true, points: newPoints})
 }
 
-function stipple(image, pointCount) {
-    let points = createPoints(image, pointCount);
-    points = relax(points, image);
-    return points;
-}
-
-function createPoints(image, pointCount) {
-    const points = new Float64Array(pointCount * 2);
-
-    // Initialize the points using rejection sampling.
-    for (let i = 0; i < pointCount; ++i) {
-        for (let j = 0; j < 30; ++j) {
-            const x = points[i * 2] = Math.floor(Math.random() * image.width);
-            const y = points[i * 2 + 1] = Math.floor(Math.random() * image.height);
-            if (Math.random() < image.data[y * image.width + x]) break;
-        }
-    }
-
-    return points;
-}
-
-function relax(points, image, stepCount=80) {
+function relax(points, image, steps) {
     const delaunay = new Delaunay(points);
     const voronoi = delaunay.voronoi([0, 0, image.width, image.height]);
 
@@ -49,7 +28,7 @@ function relax(points, image, stepCount=80) {
     const c = new Float64Array(n * 2);
     const s = new Float64Array(n);
 
-    for (let k = 0; k < stepCount; ++k) {
+    for (let k = 0; k < steps; ++k) {
         const wiggle = Math.pow(k + 1, -0.8) * 10;
         points = relaxStep(voronoi, c, s, image, wiggle);
         self.postMessage({points});
