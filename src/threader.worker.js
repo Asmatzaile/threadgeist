@@ -13,6 +13,8 @@ let shouldStop;
 async function calculateRoute({points, route, settings}) {
     shouldStop = false;
     route = [];
+
+    freePoints.clear();
     const pointCount = points.length / 2;
     for (let i = 0; i < pointCount; i++) {
         freePoints.set(i, [points[i*2], points[i*2+1]]);
