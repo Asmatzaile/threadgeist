@@ -1,3 +1,19 @@
+import { Delaunay } from "d3-delaunay";
+import { lerp, sleep } from "./utils";
+
+self.onmessage = event => {
+    const {data: { name, args }} = event;
+    if (methods[name]) return methods[name](args);
+    console.error(`Unknown method: ${name}`);
+}
+
+const methods = { relax, stop };
+
+let shouldStop;
+function stop() {
+    shouldStop = true;
+}
+
 // Copyright 2018–2020 Mike Bostock
 //
 // Permission to use, copy, modify, and/or distribute this software for any
@@ -12,16 +28,8 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import { Delaunay } from "d3-delaunay";
-import { lerp } from "./utils";
-
-self.onmessage = event => {
-    const {data: { points, image, steps }} = event;
-    const newPoints = relax(points, image, steps);
-    self.postMessage({finished: true, points: newPoints})
-}
-
-function relax(points, image, steps) {
+async function relax({points, image, steps}) {
+    shouldStop = false;
     const delaunay = new Delaunay(points);
     const voronoi = delaunay.voronoi([0, 0, image.width, image.height]);
 
@@ -33,9 +41,12 @@ function relax(points, image, steps) {
         const wiggle = Math.pow(k + 1, -0.8) / 100;
         points = relaxStep(voronoi, c, s, image, wiggle);
         self.postMessage({points});
+
+        await sleep(0);
+        if (shouldStop) break;
     }
 
-    return points;
+    self.postMessage({finished: true, points})
 }
 
 function relaxStep(voronoi, c, s, image, wiggle=0) {

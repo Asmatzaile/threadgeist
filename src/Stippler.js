@@ -4,33 +4,38 @@ export class Stippler {
     worker = new Worker(new URL("./stippler.worker.js", import.meta.url), {type: 'module'});
     onstep = () => {}
     onfinish = () => {}
+    status = 'unstarted';
 
     settings = {
         pointCount: new RangeParam(100, 20000, 10000),
     }
 
-    constructor(image) {
-        if (image) this.init(image);
+    constructor(imageLoader) {
+        this.imageLoader = imageLoader;
 
         this.worker.addEventListener("message", ({data}) => {
             const { points, finished } = data;
             this.points = points;
             this.onstep();
-            if (finished) this.onfinish();
+            if (finished) {
+                this.status = 'done';
+                this.onfinish();
+            }
         })
     }
-    
-    init(image) {
-        this.loadImage(image);
-        this.samplePoints(this.settings.pointCount);
+
+    get image() {
+        return this.imageLoader.image;
     }
 
-    loadImage(image) {
-        this.image = image;
+    createStipple(onfinish) {
+        this.points = this.samplePoints();
+        this.relax(onfinish);
     }
 
     // Rejection sampling
-    samplePoints(pointCount, image=this.image) {
+    samplePoints(pointCount=this.settings.pointCount, image=this.image) {
+        this.status = 'working';
         const points = new Float64Array(pointCount * 2);
         for (let i = 0; i < pointCount; ++i) {
             for (let j = 0; j < 30; ++j) {
@@ -41,10 +46,17 @@ export class Stippler {
         }
     
         this.points = points;
+        this.status = 'done'
         return points;
     }
 
-    spacePoints(steps=80) {   
-        this.worker.postMessage({points: this.points, image: this.image, steps});
+    relax(onfinish, steps=80) {
+        this.onfinish = onfinish;
+        this.status = 'working'
+        this.worker.postMessage({name: "relax", args: {points: this.points, image: this.image, steps}});
+    }
+
+    stop() {
+        this.worker.postMessage({name: "stop"});
     }
 }

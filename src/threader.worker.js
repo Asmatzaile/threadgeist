@@ -1,17 +1,18 @@
-const freePoints = new Map();
-
-// this only has point indexes
-const route = [];
+import { sleep } from "./utils";
 
 self.onmessage = event => {
-    const {data: { points, settings }} = event;
-    const route = calculateRoute(points, settings);
-    self.postMessage({finished: true, route})
+    const {data: { name, args }} = event;
+    if (methods[name]) return methods[name](args);
+    console.error(`Unknown method: ${name}`);
 }
 
+const freePoints = new Map();
 
+let shouldStop;
 // points is a 1d array with [x0, y0, x1, y1, ...]
-function calculateRoute(points, settings) {
+async function calculateRoute({points, route, settings}) {
+    shouldStop = false;
+    route = [];
     const pointCount = points.length / 2;
     for (let i = 0; i < pointCount; i++) {
         freePoints.set(i, [points[i*2], points[i*2+1]]);
@@ -26,10 +27,21 @@ function calculateRoute(points, settings) {
         freePoints.delete(currentIndex);
 
         currentIndex = getNextIndex(currentX, currentY, angle, settings);
-        if (currentIndex === undefined) return route;
+        if (currentIndex === undefined) break;
         angle = freePoints.get(currentIndex);
+        
+        await sleep(0); // make it able to get shouldStop
+        if (shouldStop) break;
     }
-    return route;
+    self.postMessage({finished: true, route});
+}
+
+function stop() {
+    shouldStop = true;
+}
+
+const methods = {
+    calculateRoute, stop
 }
 
 function getNextIndex(currentX, currentY, orientation, settings) {

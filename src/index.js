@@ -1,87 +1,18 @@
-import { Stippler } from "./stippler";
-import { Threader } from "./threader";
+import { Drawer } from "./Drawer";
+import { ImageLoader } from "./ImageLoader";
+import { Stippler } from "./Stippler";
+import { Threader } from "./Threader";
 
-export function loadImage(url, canvas) {
-    const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.src = url;
-    image.onload = () => createLine(image, canvas);
-}
 
-export function getCanvas() {
-    return canvas;
-}
+export const imageLoader = new ImageLoader();
+export const stippler = new Stippler(imageLoader);
+export const threader = new Threader(stippler);
 
-const stippler = new Stippler();
-const threader = new Threader();
-export function getStippler() {
-    return stippler;
-}
-export function getThreader() {
-    return threader;
-}
-
-const createLine = (image, canvas) => {
-    canvas.width = image.width;
-    canvas.height = image.height;
-    const context = canvas.getContext("2d")
-    const parsedImage = parseImage(image);
-    stippler.init(parsedImage);
-    stippler.onstep = () => {
-        drawPoints(stippler.points, context);
-    }
-    stippler.onfinish = () => {
-        const points = stippler.points;
-        const imgDiagonal = Math.sqrt(Math.pow(image.width, 2) + Math.pow(image.height, 2));
-        threader.createRoute(points, imgDiagonal);
-    }
-    threader.onstep = () => {
-        drawRoute(stippler.points, threader.route, context);
-    }
-    threader.onfinish = () => {
-        console.log("finished!")
-    }
-    stippler.spacePoints(80);
-}
-
-function parseImage(image) {
-    const canvas = document.createElement("canvas");
-    const { width, height } = image;
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext("2d");
-    context.drawImage(image, 0, 0);
-    const { data: rgba } = context.getImageData(0, 0, width, height);
-    const data = new Float64Array(width * height);
-    for (let i = 0, n = rgba.length / 4; i < n; ++i) {
-        const [r, g, b, _a] = rgba.slice(i * 4, i * 4 + 4);
-        const luminance = 0.2126 * r / 255 + 0.7152 * g / 255 + 0.0722 * b / 255; // Rec. 709
-        data[i] = 1 - luminance;
-    }
-
-    return { data, width, height };
-}
-
-function drawPoints(points, context) {
-    context.fillStyle = "#fff";
-    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
-    context.beginPath();
-    for (let i = 0, n = points.length; i < n; i += 2) {
-        const x = points[i], y = points[i + 1];
-        context.moveTo(x + 1.5, y);
-        context.arc(x, y, 1.5, 0, 2 * Math.PI);
-    }
-    context.fillStyle = "#000";
-    context.fill();
-}
-
-function drawRoute(points, route, context) {
-    context.beginPath();
-    route.forEach((pointIndex, i) => {
-        const [x, y] = [points[pointIndex * 2], points[pointIndex * 2 + 1]];
-        if (i === 0) context.moveTo(x, y);
-        else context.lineTo(x, y);
-    })
-    context.strokeStyle = "#f00"
-    context.stroke();
+let drawer;
+export function createDrawer(canvas) {
+    drawer = new Drawer(canvas, stippler, threader);
+    stippler.onstep = () => drawer.updateCanvas();
+    threader.onstart = () => drawer.updateCanvas();
+    threader.onstep = () => drawer.updateCanvas({solo: ["route"]});
+    imageLoader.drawer = drawer;
 }

@@ -10,3 +10,5 @@ export function lin2log(value, min, max) {
 export function log2lin(value, min, max) {
     return Math.pow(normalize(value, min, max), 1/2);
 }
+
+export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
