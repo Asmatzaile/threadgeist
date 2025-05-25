@@ -1,5 +1,6 @@
 import { useForceUpdate } from "./useForceUpdate";
 import { stippler } from "./index";
+import { Button } from "./components/Button";
 
 export function CreateStippleModal({ref, forceUpdate}) {
     const subForceUpdate = useForceUpdate();
@@ -18,10 +19,10 @@ export function CreateStippleModal({ref, forceUpdate}) {
                     </label>
                 })}
             </fieldset>
-            <button className="px-4 border-2 cursor-pointer" onClick={() => {
+            <Button onClick={() => {
                 stippler.createStipple(forceUpdate)
                 forceUpdate();
-            }}>Create stipple</button>
+            }}>Create stipple</Button>
         </form>
             
     </dialog>

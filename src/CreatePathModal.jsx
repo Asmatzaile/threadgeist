@@ -1,5 +1,6 @@
 import { useForceUpdate } from "./useForceUpdate";
 import { threader } from "./index";
+import { Button } from "./components/Button";
 
 export function CreatePathModal({ref, forceUpdate}) {
     const subForceUpdate = useForceUpdate();
@@ -18,10 +19,10 @@ export function CreatePathModal({ref, forceUpdate}) {
                     </label>
                 })}
             </fieldset>
-            <button className="px-4 border-2 cursor-pointer" onClick={() => {
+            <Button onClick={() => {
                 threader.createRoute(forceUpdate)
                 forceUpdate();
-            }}>Create path</button>
+            }}>Create path</Button>
         </form>
             
     </dialog>

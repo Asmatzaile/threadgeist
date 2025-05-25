@@ -7,7 +7,7 @@ export class Stippler {
     status = 'unstarted';
 
     settings = {
-        pointCount: new RangeParam(100, 20000, 10000),
+        pointCount: new RangeParam(100, 20000, 10000, 1),
     }
 
     constructor(imageLoader) {
