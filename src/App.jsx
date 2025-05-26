@@ -4,16 +4,17 @@ import { CreatePathModal } from "./CreatePathModal";
 import { CreateStippleModal } from "./CreateStippleModal";
 import { useForceUpdate } from "./useForceUpdate";
 import { Button } from "./components/Button";
+import { Slider } from "./components/Slider";
 
 function App() {
-    const canvasRef = useRef();
+    const previewRef = useRef();
     const createPathModalRef = useRef();
     const createStippleModalRef = useRef();
 
     const [images, setImages] = useState();
     const [currentImageIndex, setCurrentImageIndex] = useState();
     useEffect(() => {
-        createDrawer(canvasRef.current);
+        createDrawer(previewRef.current);
     }, [])
 
     const forceUpdate = useForceUpdate();
@@ -25,6 +26,11 @@ function App() {
         if (currentImageIndex === undefined) return;
         imageLoader.load(images[currentImageIndex].url, forceUpdate)
     }, [currentImageIndex, images]);
+
+    const [imgOpacity, setImgOpacity] = useState(1);
+    const [stippleOpacity, setStippleOpacity] = useState(1);
+    const [pathOpacity, setPathOpacity] = useState(1);
+
 
     return <>
         <header className="py-2 border-b-2">
@@ -57,7 +63,30 @@ function App() {
             </fieldset>
         </div>
 
-        <canvas hidden={!imageLoader.status === 'unstarted'} ref={canvasRef} />
+        <div>
+            <h3 className="preview">Preview</h3>
+            <div hidden={!imageLoader.status === 'unstarted'} className="relative" ref={previewRef}>
+                    <canvas style={{opacity: imgOpacity}} />
+                    <canvas style={{opacity: stippleOpacity}}  className="absolute inset-0"/>
+                    <canvas style={{opacity: pathOpacity}}  className="absolute inset-0"/>
+            </div>
+            <fieldset>
+                <legend className="uppercase">Opacity</legend>
+                <label>
+                    Image
+                    <Slider disabled={imageLoader.status === 'unstarted'} min="0" max="1" step="any" value={imgOpacity} onChange={(e)=>setImgOpacity(e.target.valueAsNumber)}/>
+                </label>
+                <label>
+                    Stipple
+                    <Slider disabled={stippler.status === 'unstarted'} min="0" max="1" step="any" value={stippleOpacity} onChange={(e)=>setStippleOpacity(e.target.valueAsNumber)}/>
+                </label>
+                <label>
+                    Path
+                    <Slider disabled={threader.status === 'unstarted'} min="0" max="1" step="any" value={pathOpacity} onChange={(e)=>setPathOpacity(e.target.valueAsNumber)}/>
+                </label>
+            </fieldset>
+        </div>
+
 
         <CreateStippleModal ref={createStippleModalRef} forceUpdate={forceUpdate}/>
         <CreatePathModal ref={createPathModalRef} forceUpdate={forceUpdate}/>

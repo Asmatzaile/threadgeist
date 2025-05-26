@@ -28,7 +28,7 @@ export class ImageLoader {
         for (let i = 0, n = rgba.length / 4; i < n; ++i) {
             const [r, g, b, _a] = rgba.slice(i * 4, i * 4 + 4);
             const luminance = 0.2126 * r / 255 + 0.7152 * g / 255 + 0.0722 * b / 255; // Rec. 709
-            data[i] = 1 - luminance;
+            data[i] = luminance;
         }
 
         return { data, width, height };

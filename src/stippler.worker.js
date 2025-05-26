@@ -59,7 +59,7 @@ function relaxStep(voronoi, c, s, image, wiggle=0) {
     for (let y = 0, i = 0; y < height; ++y) {
         for (let x = 0; x < width; ++x) {
             const pixelIndex = y * width + x;
-            const weight = data[pixelIndex];
+            const weight = 1 - data[pixelIndex];
             const xCenter = x + 0.5;
             const yCenter = y + 0.5;
             i = delaunay.find(xCenter, yCenter, i);

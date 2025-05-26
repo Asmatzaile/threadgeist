@@ -1,5 +1,5 @@
 import { round, lin2log, log2lin } from "./utils";
-
+import { Slider } from "./components/Slider";
 export class RangeParam {
     constructor(min, max, value, step="any") {
         this.min = min;
@@ -18,12 +18,4 @@ export class RangeParam {
         value={log2lin(this.value, this.min, this.max)} displayValue={this.value}
         onChange={e => onUpdate(round(lin2log(e.target.valueAsNumber, this.min, this.max), this.step))} />
     }
-}
-
-const Slider = ({className, min, max, step, value, displayValue, onChange}) => {
-    return <>
-        <input className={className} type="range" min={min} max={max} step={step} value={value} onChange={onChange} />
-        <div>{parseFloat(displayValue.toFixed(2)).toString()}</div>
-    </>
-
 }

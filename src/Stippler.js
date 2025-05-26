@@ -41,7 +41,7 @@ export class Stippler {
             for (let j = 0; j < 30; ++j) {
                 const x = points[i * 2] = Math.floor(Math.random() * image.width);
                 const y = points[i * 2 + 1] = Math.floor(Math.random() * image.height);
-                if (Math.random() < image.data[y * image.width + x]) break;
+                if (Math.random() < 1 - image.data[y * image.width + x]) break;
             }
         }
     

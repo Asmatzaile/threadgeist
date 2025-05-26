@@ -2,7 +2,6 @@ import { RangeParam } from "./RangeParam";
 
 export class Threader {
     worker = new Worker(new URL("./threader.worker.js", import.meta.url), {type: 'module'});
-    onstart = () => {}
     onstep = () => {}
     onfinish = () => {}
     status = 'unstarted'
@@ -41,6 +40,5 @@ export class Threader {
         const imgDiagonal = Math.sqrt(Math.pow(this.stippler.image.width, 2) + Math.pow(this.stippler.image.height, 2));
         const maxDistance = imgDiagonal * distanceLimit;
         this.worker.postMessage({name: "calculateRoute", args: {points, route, settings: { distanceWeight, directnessWeight, maxDistance }}});
-        this.onstart();
     }
 }

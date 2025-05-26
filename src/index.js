@@ -8,11 +8,9 @@ export const imageLoader = new ImageLoader();
 export const stippler = new Stippler(imageLoader);
 export const threader = new Threader(stippler);
 
-let drawer;
 export function createDrawer(canvas) {
-    drawer = new Drawer(canvas, stippler, threader);
-    stippler.onstep = () => drawer.updateCanvas();
-    threader.onstart = () => drawer.updateCanvas();
-    threader.onstep = () => drawer.updateCanvas({solo: ["route"]});
+    const drawer = new Drawer(canvas, stippler, threader);
+    stippler.onstep = () => drawer.updatePoints();
+    threader.onstep = () => drawer.updatePath();
     imageLoader.drawer = drawer;
 }
