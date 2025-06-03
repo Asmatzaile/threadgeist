@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { createDrawer, imageLoader, stippler, threader } from "./index"
+import { imageLoader, stippler, threader, downloader } from "./index";
+import { createDrawer } from "./index";
 import { CreatePathModal } from "./CreatePathModal";
 import { CreateStippleModal } from "./CreateStippleModal";
 import { useForceUpdate } from "./useForceUpdate";
@@ -13,18 +14,20 @@ function App() {
 
     const [images, setImages] = useState();
     const [currentImageIndex, setCurrentImageIndex] = useState();
+
     useEffect(() => {
         createDrawer(previewRef.current);
     }, [])
 
     const forceUpdate = useForceUpdate();
     function uploadImages(files) {
-        setImages(Array.from(files).map(file => ({name: file.name, url: URL.createObjectURL(file)})))
+        setImages(Array.from(files).map(file => ({filename: file.name, url: URL.createObjectURL(file)})))
         setCurrentImageIndex(0);
     }
     useEffect(()=> {
         if (currentImageIndex === undefined) return;
-        imageLoader.load(images[currentImageIndex].url, forceUpdate)
+        const currentImg = images[currentImageIndex];
+        imageLoader.load(currentImg.url, currentImg.filename, forceUpdate)
     }, [currentImageIndex, images]);
 
     const [imgOpacity, setImgOpacity] = useState(1);
@@ -43,10 +46,10 @@ function App() {
                     <Button className="w-full">Upload image(s)</Button>
                     <input type="file" accept="image/*" multiple={true} className="opacity-0 cursor-pointer absolute inset-0 w-full h-full" onChange={(e) => uploadImages(e.target.files)}/>
                 </label>
-                { images && images.length === 1 && <span className="grid justify-center">{images[currentImageIndex].name}</span>}
+                { images && images.length === 1 && <span className="grid justify-center">{images[currentImageIndex].filename}</span>}
                 { images && images.length > 1 && <div className="grid justify-between grid-cols-[min-content_minmax(max-content,auto)_min-content]">
                 <Button aria-label="Previous image" disabled={currentImageIndex===0} onClick={() => setCurrentImageIndex(p=>p-1)}>◀</Button>
-                <span className="mx-2">{images[currentImageIndex].name} ({currentImageIndex+1}/{images.length})</span>
+                <span className="mx-2">{images[currentImageIndex].filename} ({currentImageIndex+1}/{images.length})</span>
                 <Button aria-label="Next image" disabled={currentImageIndex===images.length-1} onClick={() => setCurrentImageIndex(p=>p+1)}>▶</Button>
                 </div>}
             </fieldset>
@@ -60,6 +63,7 @@ function App() {
                 <legend className="uppercase">Threader</legend>
                 <Button hidden={threader.status === 'working'} onClick={() => createPathModalRef.current.showModal()}>New path</Button>
                 <Button hidden={threader.status !== 'working'} onClick={() => threader.stop()}>Stop path generation</Button>
+                <Button hidden={threader.status === 'unstarted'} disabled={threader.status !== 'done'} onClick={() => downloader.download()}>Download path svg</Button>
             </fieldset>
         </div>
 

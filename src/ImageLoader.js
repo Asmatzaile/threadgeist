@@ -1,13 +1,14 @@
 export class ImageLoader {
     status = 'unstarted';
 
-    load(url, onload) {
+    load(url, filename, onload) {
         this.status = 'working';
         const rawImage = new Image();
         rawImage.crossOrigin = "anonymous";
         rawImage.src = url;
         rawImage.onload = () => {
             this.image = this.parseImage(rawImage);
+            this.image.filename = filename;
 
             this.drawer.updateDim({width: this.image.width, height: this.image.height});
 
