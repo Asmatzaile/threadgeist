@@ -1,12 +1,22 @@
+import { PointMover } from "./PointMover";
+
 export class Drawer {
     canvases = new Map();
 
-    constructor(previewDiv, stippler, threader) {
+    constructor(previewDiv, setCursor, stippler, threader) {
         const names = ["image", "stipple", "path"];
         [...previewDiv.children].forEach((canvas, index) => this.canvases.set(names[index], canvas));
 
         this.stippler = stippler;
         this.threader = threader;
+
+        const pointMover = new PointMover(stippler, setCursor);
+        pointMover.onchange = () => this.updatePoints();
+        previewDiv.addEventListener("pointerdown", () => pointMover.grab())
+        previewDiv.addEventListener("pointerup", () => pointMover.drop())
+        previewDiv.addEventListener("pointerout", () => pointMover.cancel())
+        previewDiv.addEventListener("pointermove", e => pointMover.move(e.offsetX, e.offsetY)); // TODO: if canvas is not same size as image this won't work
+        this.pointMover = pointMover;
     }
 
     updateDim({width, height}) {
@@ -46,10 +56,13 @@ export class Drawer {
         const context = this.canvases.get("stipple").getContext("2d");
         this.clearBg(context);
         context.beginPath();
+        const r = 1.5;
         for (let i = 0, n = points.length; i < n; i += 2) {
             const x = points[i], y = points[i + 1];
-            context.moveTo(x + 1.5, y);
-            context.arc(x, y, 1.5, 0, 2 * Math.PI);
+            let radius = r;
+            if (this.pointMover.hoveredPointIndex === i/2) radius *= 2;
+            context.moveTo(x + radius, y);
+            context.arc(x, y, radius, 0, 2 * Math.PI);
         }
         context.fillStyle = "#66f";
         context.fill();

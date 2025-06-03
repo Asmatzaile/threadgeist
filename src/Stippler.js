@@ -2,12 +2,19 @@ import { RangeParam } from "./RangeParam";
 
 export class Stippler {
     worker = new Worker(new URL("./stippler.worker.js", import.meta.url), {type: 'module'});
-    onstep = () => {}
+    onchange = () => {}
     onfinish = () => {}
     status = 'unstarted';
+    _points = [];
 
     settings = {
         pointCount: new RangeParam(100, 20000, 10000, 1),
+    }
+
+    get points() {return this._points}
+    set points(points) {
+        this._points = points;
+        this.onchange();
     }
 
     constructor(imageLoader) {
@@ -16,7 +23,6 @@ export class Stippler {
         this.worker.addEventListener("message", ({data}) => {
             const { points, finished } = data;
             this.points = points;
-            this.onstep();
             if (finished) {
                 this.status = 'done';
                 this.onfinish();

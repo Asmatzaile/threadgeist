@@ -9,9 +9,9 @@ export const stippler = new Stippler(imageLoader);
 export const threader = new Threader(stippler);
 export const downloader = new Downloader(imageLoader, threader);
 
-export function createDrawer(canvas) {
-    const drawer = new Drawer(canvas, stippler, threader);
-    stippler.onstep = () => drawer.updatePoints();
+export function createDrawer(previewDiv, setPreviewDivCursor) {
+    const drawer = new Drawer(previewDiv, setPreviewDivCursor, stippler, threader);
+    stippler.onchange = () => drawer.updatePoints();
     threader.onstep = () => drawer.updatePath();
     imageLoader.drawer = drawer;
 }

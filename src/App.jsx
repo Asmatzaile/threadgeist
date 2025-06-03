@@ -9,6 +9,7 @@ import { Slider } from "./components/Slider";
 
 function App() {
     const previewRef = useRef();
+    const [previewCursor, setPreviewCursor] = useState("default");
     const createPathModalRef = useRef();
     const createStippleModalRef = useRef();
 
@@ -16,7 +17,7 @@ function App() {
     const [currentImageIndex, setCurrentImageIndex] = useState();
 
     useEffect(() => {
-        createDrawer(previewRef.current);
+        createDrawer(previewRef.current, setPreviewCursor);
     }, [])
 
     const forceUpdate = useForceUpdate();
@@ -69,7 +70,7 @@ function App() {
 
         <div>
             <h3 className="preview">Preview</h3>
-            <div hidden={!imageLoader.status === 'unstarted'} className="relative" ref={previewRef}>
+            <div hidden={!imageLoader.status === 'unstarted'} className="relative w-min" ref={previewRef} style={{cursor: previewCursor}}>
                     <canvas style={{opacity: imgOpacity}} />
                     <canvas style={{opacity: stippleOpacity}}  className="absolute inset-0"/>
                     <canvas style={{opacity: pathOpacity}}  className="absolute inset-0"/>
