@@ -19,7 +19,7 @@ export function CreateStippleModal({ref, forceUpdate}) {
                     </label>
                 })}
             </fieldset>
-            <Button onClick={() => {
+            <Button variant="primary" onClick={() => {
                 stippler.createStipple(forceUpdate)
                 forceUpdate();
             }}>Create stipple</Button>

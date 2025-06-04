@@ -19,7 +19,7 @@ export function CreatePathModal({ref, forceUpdate}) {
                     </label>
                 })}
             </fieldset>
-            <Button onClick={() => {
+            <Button variant="primary" onClick={() => {
                 threader.createRoute(forceUpdate)
                 forceUpdate();
             }}>Create path</Button>
