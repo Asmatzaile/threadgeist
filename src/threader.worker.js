@@ -1,5 +1,6 @@
 import { quadtree as makeQuadtree } from "d3-quadtree";
 import { findInCircle } from "./thirdparty/findInCircle";
+import { Timer } from "./Timer";
 import { lerp, sleep } from "./utils";
 
 self.onmessage = event => {
@@ -25,6 +26,8 @@ async function calculateRoute({points, route, settings}) {
 
     let currentIndex = Math.floor(Math.random() * pointCount);
     let oldX, oldY;
+    const timer = new Timer(200);
+    timer.start();
     for (let i = 0; i < pointCount; i++) {
         route.push(currentIndex);
         visitedPoints.add(currentIndex); // actually it's the same as route :v todo remove
@@ -37,8 +40,11 @@ async function calculateRoute({points, route, settings}) {
         if (currentIndex === undefined) break;
         oldX = x, oldY = y;
         
-        // await sleep(0); //this makes it so slow! but it makes it able to get shouldStop
-        if (shouldStop) break;
+        if (timer.isOver) {
+            timer.start();
+            await sleep(0); //this makes it able to get shouldStop
+            if (shouldStop) break;
+        }
     }
     self.postMessage({finished: true, route});
 }

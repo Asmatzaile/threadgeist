@@ -1,4 +1,5 @@
 import { Delaunay } from "d3-delaunay";
+import { Timer } from "./Timer";
 import { lerp, sleep } from "./utils";
 
 self.onmessage = event => {
@@ -37,13 +38,18 @@ async function relax({points, image, steps}) {
     const c = new Float64Array(n * 2);
     const s = new Float64Array(n);
 
+    const timer = new Timer(200);
+    timer.start();
     for (let k = 0; k < steps; ++k) {
         const wiggle = Math.pow(k + 1, -0.8) / 100;
         points = relaxStep(voronoi, c, s, image, wiggle);
         self.postMessage({points});
 
-        await sleep(0);
-        if (shouldStop) break;
+        if (timer.isOver) {
+            timer.start();
+            await sleep(0);
+            if (shouldStop) break;
+        }
     }
 
     self.postMessage({finished: true, points})
