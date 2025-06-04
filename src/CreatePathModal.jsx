@@ -1,3 +1,4 @@
+import { useHotkeys } from "react-hotkeys-hook";
 import { XIcon } from "@phosphor-icons/react";
 import { useForceUpdate } from "./useForceUpdate";
 import { threader } from "./index";
@@ -5,8 +6,13 @@ import { Button } from "./components/Button";
 import { Legend } from "./components/Legend";
 import { Dialog } from "./components/Dialog";
 
-export function CreatePathModal({ref, forceUpdate}) {
+export function CreatePathModal({ref, createPath}) {
     const subForceUpdate = useForceUpdate();
+    useHotkeys('enter', () => {
+        if (!ref.current || !ref.current.open) return;
+        ref.current.close();
+        createPath();
+    });
 
     return <Dialog ref={ref} >
         <form method="dialog" className="flex flex-col gap-2">
@@ -25,10 +31,7 @@ export function CreatePathModal({ref, forceUpdate}) {
                     })}
                 </div>
             </fieldset>
-            <Button variant="primary" onClick={() => {
-                threader.createRoute(forceUpdate)
-                forceUpdate();
-            }}>Create path</Button>
+            <Button variant="primary" onClick={createPath}>Create path</Button>
         </form>
             
     </Dialog>

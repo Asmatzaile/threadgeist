@@ -1,3 +1,4 @@
+import { useHotkeys } from "react-hotkeys-hook";
 import { XIcon } from "@phosphor-icons/react";
 import { useForceUpdate } from "./useForceUpdate";
 import { stippler } from "./index";
@@ -5,8 +6,13 @@ import { Button } from "./components/Button";
 import { Legend } from "./components/Legend";
 import { Dialog } from "./components/Dialog";
 
-export function CreateStippleModal({ref, forceUpdate}) {
+export function CreateStippleModal({ref, createStipple}) {
     const subForceUpdate = useForceUpdate();
+    useHotkeys('enter', () => {
+        if (!ref.current || !ref.current.open) return;
+        ref.current.close();
+        createStipple();
+    });
 
     return <Dialog ref={ref}>
         <form method="dialog" className="flex flex-col gap-2">
@@ -25,10 +31,7 @@ export function CreateStippleModal({ref, forceUpdate}) {
                     })}
                 </div>
             </fieldset>
-            <Button variant="primary" onClick={() => {
-                stippler.createStipple(forceUpdate)
-                forceUpdate();
-            }}>Create stipple</Button>
+            <Button variant="primary" onClick={createStipple}>Create stipple</Button>
         </form>
             
     </Dialog>
