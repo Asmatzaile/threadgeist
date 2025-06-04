@@ -6,6 +6,7 @@ import { CreateStippleModal } from "./CreateStippleModal";
 import { useForceUpdate } from "./useForceUpdate";
 import { Button } from "./components/Button";
 import { Slider } from "./components/Slider";
+import { Legend } from "./components/Legend";
 
 function App() {
     const previewRef = useRef();
@@ -42,7 +43,7 @@ function App() {
         </header>
         <div className="grid grid-cols-3 gap-6 border-b-2 *:border-r-2">
             <fieldset className="p-2 grid gap-2 items-center">
-                <legend className="uppercase">Image</legend>
+                <Legend className="uppercase">Image</Legend>
                 <label className="relative w-full">
                     <Button className="w-full">Upload image(s)</Button>
                     <input type="file" accept="image/*" multiple={true} className="opacity-0 cursor-pointer absolute inset-0 w-full h-full" onChange={(e) => uploadImages(e.target.files)}/>
@@ -55,13 +56,13 @@ function App() {
                 </div>}
             </fieldset>
             <fieldset className="p-2 grid gap-2 items-center" disabled={imageLoader.status === 'unstarted'}>
-                <legend className="uppercase">Stippler</legend>
+                <Legend className="uppercase">Stippler</Legend>
                 <Button disabled={stippler.status === 'working' || threader.status === 'working'} onClick={() => createStippleModalRef.current.showModal()}>New stipple</Button>
                 <Button hidden={stippler.status !== 'done'} onClick={() => {stippler.relax(forceUpdate);forceUpdate()}}>Relax stipple</Button>
                 <Button hidden={stippler.status !== 'working'} onClick={() => stippler.stop()}>Stop relaxation</Button>
             </fieldset>
             <fieldset className="p-2 grid gap-2 items-center" disabled={stippler.status === 'unstarted'}>
-                <legend className="uppercase">Threader</legend>
+                <Legend className="uppercase">Threader</Legend>
                 <Button hidden={threader.status === 'working'} onClick={() => createPathModalRef.current.showModal()}>New path</Button>
                 <Button hidden={threader.status !== 'working'} onClick={() => threader.stop()}>Stop path generation</Button>
                 <Button hidden={threader.status === 'unstarted'} disabled={threader.status !== 'done'} onClick={() => downloader.download()}>Download path svg</Button>
@@ -76,7 +77,7 @@ function App() {
                     <canvas style={{opacity: pathOpacity}}  className="absolute inset-0"/>
             </div>
             <fieldset>
-                <legend className="uppercase">Opacity</legend>
+                <Legend className="uppercase">Opacity</Legend>
                 <label>
                     Image
                     <Slider disabled={imageLoader.status === 'unstarted'} min="0" max="1" step="any" value={imgOpacity} onChange={(e)=>setImgOpacity(e.target.valueAsNumber)}/>
