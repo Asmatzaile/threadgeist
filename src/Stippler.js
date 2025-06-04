@@ -8,7 +8,7 @@ export class Stippler {
     _points = [];
 
     settings = {
-        pointCount: new RangeParam(100, 20000, 10000, 1),
+        pointCount: new RangeParam(100, 20000, 200, {step: 1}),
     }
 
     get points() {return this._points}

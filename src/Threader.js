@@ -9,8 +9,9 @@ export class Threader {
 
     settings = {
         distanceLimit: new RangeParam(0.001, 1, 0.07),
-        distanceWeight: new RangeParam(0.1, 10, 0.6),
-        directnessWeight: new RangeParam(0.1, 10, 3),
+        closenessWeight: new RangeParam(-1, 1, 0.3, {step: 0.1, display: 'box'}),
+        directnessWeight: new RangeParam(-1, 1, 0.2, {step: 0.1, display: 'box'}),
+        randomness: new RangeParam(0, 1, 0.2, {scale: 'linear'})
     }
 
     constructor(stippler) {
@@ -36,10 +37,10 @@ export class Threader {
         const route = this.route = [];
         this.status = 'working';
         this.onfinish = onfinish;
-        const { distanceWeight, directnessWeight, distanceLimit } = this.settings;
+        const { closenessWeight, directnessWeight, randomness, distanceLimit } = this.settings;
         const imgDiagonal = Math.sqrt(Math.pow(this.stippler.image.width, 2) + Math.pow(this.stippler.image.height, 2));
         const maxDistance = imgDiagonal * distanceLimit;
-        this.worker.postMessage({name: "calculateRoute", args: {points, route, settings: { distanceWeight: distanceWeight.value, directnessWeight: directnessWeight.value, maxDistance }}});
+        this.worker.postMessage({name: "calculateRoute", args: {points, route, settings: { closenessWeight: closenessWeight.value, directnessWeight: directnessWeight.value, randomness: randomness.value, maxDistance }}});
     }
 
     get result() {

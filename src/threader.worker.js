@@ -1,6 +1,6 @@
 import { quadtree as makeQuadtree } from "d3-quadtree";
 import { findInCircle } from "./thirdparty/findInCircle";
-import { sleep } from "./utils";
+import { lerp, sleep } from "./utils";
 
 self.onmessage = event => {
     const {data: { name, args }} = event;
@@ -52,7 +52,7 @@ const methods = {
 }
 
 function getNextIndex(qt, [currentX, currentY], currentAngle, settings) {
-    const { maxDistance, distanceWeight, directnessWeight } = settings;
+    const { maxDistance, closenessWeight, directnessWeight, randomness } = settings;
     const availablePoints = findInCircle(qt, currentX, currentY, maxDistance/2, ([_x, _y, i]) => !visitedPoints.has(i));
     let bestScore = 0;
     let nextIndex;
@@ -62,7 +62,8 @@ function getNextIndex(qt, [currentX, currentY], currentAngle, settings) {
         const angle = Math.atan2(y-currentY, x-currentX);
         const directness = Math.min(1, Math.cos(angle-currentAngle) / 2 + 0.5 + 0.01);
         const closeness = Math.min(1 - distance2 / maxDistance2 + 0.01);
-        const score = Math.pow(closeness, distanceWeight) * Math.pow(directness, directnessWeight);
+        let score = (Math.pow(closeness, closenessWeight) + Math.pow(directness, directnessWeight))/2;
+        score = lerp(randomness, score, Math.random());
         if (score <= bestScore) return;
         nextIndex = index;
         bestScore = score;

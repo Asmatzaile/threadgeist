@@ -1,5 +1,5 @@
 const scale = (input, inmin, inmax, outmin, outmax) => lerp((normalize(input, inmin, inmax)), outmin, outmax)
-const normalize = (input, inmin, inmax) => (input - inmin) / (inmax - inmin);
+export const normalize = (input, inmin, inmax) => (input - inmin) / (inmax - inmin);
 export const lerp = (t, a, b) => a + t * (b - a);
 
 export const round = (value, step=1, offset=0) => step === "any" ? value : Math.ceil((value-offset) / step) * step + offset;
