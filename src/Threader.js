@@ -39,7 +39,7 @@ export class Threader {
         const { distanceWeight, directnessWeight, distanceLimit } = this.settings;
         const imgDiagonal = Math.sqrt(Math.pow(this.stippler.image.width, 2) + Math.pow(this.stippler.image.height, 2));
         const maxDistance = imgDiagonal * distanceLimit;
-        this.worker.postMessage({name: "calculateRoute", args: {points, route, settings: { distanceWeight, directnessWeight, maxDistance }}});
+        this.worker.postMessage({name: "calculateRoute", args: {points, route, settings: { distanceWeight: distanceWeight.value, directnessWeight: directnessWeight.value, maxDistance }}});
     }
 
     get result() {
