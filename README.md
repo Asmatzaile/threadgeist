@@ -1,5 +1,9 @@
 # 🧵👻 Threadgeist
 
+> [!IMPORTANT]
+> Development moved to Codeberg! https://codeberg.org/Asmatzaile/threadgeist
+
+
 This is a tool that can help you create a continuous line from an image!
 
 You can then use the line as a SVG, and even process is further with other programs to get instructions for an embroidery machine or a pen plotter, for example.
